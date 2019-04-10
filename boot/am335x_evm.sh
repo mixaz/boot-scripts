@@ -98,14 +98,15 @@ cleanup_extra_docs () {
 }
 
 #original user:
-usb_image_file="/var/local/usb_mass_storage.img"
+#usb_image_file="/var/local/usb_mass_storage.img"
+usb_image_file="/mnt/shared/shared.img"
 
 #*.iso priority over *.img
-if [ -f /var/local/bb_usb_mass_storage.iso ] ; then
-	usb_image_file="/var/local/bb_usb_mass_storage.iso"
-elif [ -f /var/local/bb_usb_mass_storage.img ] ; then
-	usb_image_file="/var/local/bb_usb_mass_storage.img"
-fi
+#if [ -f /var/local/bb_usb_mass_storage.iso ] ; then
+#	usb_image_file="/var/local/bb_usb_mass_storage.iso"
+#elif [ -f /var/local/bb_usb_mass_storage.img ] ; then
+#	usb_image_file="/var/local/bb_usb_mass_storage.img"
+#fi
 
 unset dnsmasq_usb0_usb1
 unset blue_fix_uarts
@@ -498,18 +499,18 @@ run_libcomposite () {
 		echo ${usb_iproduct} > strings/0x409/product
 
 		if [ ! "x${USB_NETWORK_DISABLED}" = "xyes" ]; then
-			mkdir -p functions/rndis.usb0
+			mkdir -p functions/rndis.usb1
 			# first byte of address must be even
-			echo ${cpsw_2_mac} > functions/rndis.usb0/host_addr
-			echo ${cpsw_1_mac} > functions/rndis.usb0/dev_addr
+			echo ${cpsw_2_mac} > functions/rndis.usb1/host_addr
+			echo ${cpsw_1_mac} > functions/rndis.usb1/dev_addr
 
 			# Starting with kernel 4.14, we can do this to match Microsoft's built-in RNDIS driver.
 			# Earlier kernels require the patch below as a work-around instead:
 			# https://github.com/beagleboard/linux/commit/e94487c59cec8ba32dc1eb83900297858fdc590b
-			if [ -f functions/rndis.usb0/class ]; then
-				echo EF > functions/rndis.usb0/class
-				echo 04 > functions/rndis.usb0/subclass
-				echo 01 > functions/rndis.usb0/protocol
+			if [ -f functions/rndis.usb1/class ]; then
+				echo EF > functions/rndis.usb1/class
+				echo 04 > functions/rndis.usb1/subclass
+				echo 01 > functions/rndis.usb1/protocol
 			fi
 
 			# Add OS Descriptors for the latest Windows 10 rndiscmp.inf
@@ -518,25 +519,25 @@ run_libcomposite () {
 			echo 1 > os_desc/use
 			echo CD > os_desc/b_vendor_code
 			echo MSFT100 > os_desc/qw_sign
-			echo "RNDIS" > functions/rndis.usb0/os_desc/interface.rndis/compatible_id
-			echo "5162001" > functions/rndis.usb0/os_desc/interface.rndis/sub_compatible_id
+			echo "RNDIS" > functions/rndis.usb1/os_desc/interface.rndis/compatible_id
+			echo "5162001" > functions/rndis.usb1/os_desc/interface.rndis/sub_compatible_id
 
-			mkdir -p functions/ecm.usb0
-			echo ${cpsw_4_mac} > functions/ecm.usb0/host_addr
-			echo ${cpsw_5_mac} > functions/ecm.usb0/dev_addr
+			mkdir -p functions/ecm.usb1
+			echo ${cpsw_4_mac} > functions/ecm.usb1/host_addr
+			echo ${cpsw_5_mac} > functions/ecm.usb1/dev_addr
 		fi
 
-		mkdir -p functions/acm.usb0
+		mkdir -p functions/acm.usb1
 
 		if [ "x${has_img_file}" = "xtrue" ] ; then
 			echo "${log} enable USB mass_storage ${usb_image_file}"
-			mkdir -p functions/mass_storage.usb0
-			echo ${usb_ms_stall} > functions/mass_storage.usb0/stall
-			echo ${usb_ms_cdrom} > functions/mass_storage.usb0/lun.0/cdrom
-			echo ${usb_ms_nofua} > functions/mass_storage.usb0/lun.0/nofua
-			echo ${usb_ms_removable} > functions/mass_storage.usb0/lun.0/removable
-			echo ${usb_ms_ro} > functions/mass_storage.usb0/lun.0/ro
-			echo ${actual_image_file} > functions/mass_storage.usb0/lun.0/file
+			mkdir -p functions/mass_storage.usb1
+			echo ${usb_ms_stall} > functions/mass_storage.usb1/stall
+			echo ${usb_ms_cdrom} > functions/mass_storage.usb1/lun.0/cdrom
+			echo ${usb_ms_nofua} > functions/mass_storage.usb1/lun.0/nofua
+			echo ${usb_ms_removable} > functions/mass_storage.usb1/lun.0/removable
+			echo ${usb_ms_ro} > functions/mass_storage.usb1/lun.0/ro
+			echo ${actual_image_file} > functions/mass_storage.usb1/lun.0/file
 		fi
 
 		mkdir -p configs/c.1/strings/0x409
@@ -546,29 +547,29 @@ run_libcomposite () {
 
 		if [ ! "x${USB_NETWORK_DISABLED}" = "xyes" ]; then
 			ln -s configs/c.1 os_desc
-			mkdir functions/rndis.usb0/os_desc/interface.rndis/Icons
-			echo 2 > functions/rndis.usb0/os_desc/interface.rndis/Icons/type
-			echo "%SystemRoot%\\system32\\shell32.dll,-233" > functions/rndis.usb0/os_desc/interface.rndis/Icons/data
-			mkdir functions/rndis.usb0/os_desc/interface.rndis/Label
-			echo 1 > functions/rndis.usb0/os_desc/interface.rndis/Label/type
-			echo "BeagleBone USB Ethernet" > functions/rndis.usb0/os_desc/interface.rndis/Label/data
+			mkdir functions/rndis.usb1/os_desc/interface.rndis/Icons
+			echo 2 > functions/rndis.usb1/os_desc/interface.rndis/Icons/type
+			echo "%SystemRoot%\\system32\\shell32.dll,-233" > functions/rndis.usb1/os_desc/interface.rndis/Icons/data
+			mkdir functions/rndis.usb1/os_desc/interface.rndis/Label
+			echo 1 > functions/rndis.usb1/os_desc/interface.rndis/Label/type
+			echo "BeagleBone USB Ethernet" > functions/rndis.usb1/os_desc/interface.rndis/Label/data
 
-			ln -s functions/rndis.usb0 configs/c.1/
-			ln -s functions/ecm.usb0 configs/c.1/
+			ln -s functions/rndis.usb1 configs/c.1/
+			ln -s functions/ecm.usb1 configs/c.1/
 		fi
-		ln -s functions/acm.usb0 configs/c.1/
+		ln -s functions/acm.usb1 configs/c.1/
 		if [ "x${has_img_file}" = "xtrue" ] ; then
-			ln -s functions/mass_storage.usb0 configs/c.1/
+			ln -s functions/mass_storage.usb1 configs/c.1/
 		fi
 
 		#ls /sys/class/udc
 		#v4.4.x-ti
-		if [ -d /sys/class/udc/musb-hdrc.0.auto ] ; then
-			echo musb-hdrc.0.auto > UDC
+		if [ -d /sys/class/udc/musb-hdrc.1.auto ] ; then
+			echo musb-hdrc.1.auto > UDC
 		else
 			#v4.9.x-ti
-			if [ -d /sys/class/udc/musb-hdrc.0 ] ; then
-				echo musb-hdrc.0 > UDC
+			if [ -d /sys/class/udc/musb-hdrc.1 ] ; then
+				echo musb-hdrc.1 > UDC
 			fi
 		fi
 
@@ -640,8 +641,8 @@ use_libcomposite () {
 
 g_network="iSerialNumber=${usb_iserialnumber} iManufacturer=${usb_imanufacturer} iProduct=${usb_iproduct} host_addr=${cpsw_2_mac} dev_addr=${cpsw_1_mac}"
 
-usb0_fail () {
-	unset usb0
+usb1_fail () {
+	unset usb1
 	modprobe g_serial || true
 }
 
@@ -656,13 +657,13 @@ usb0_fail () {
 g_multi_retry () {
 	echo "info: [modprobe g_multi ${g_multi_options}] failed"
 #	update_initrd
-	modprobe g_multi ${g_multi_options} || usb0_fail
+	modprobe g_multi ${g_multi_options} || usb1_fail
 }
 
 g_ether_retry () {
 	echo "info: [modprobe g_ether ${g_network}] failed"
 #	update_initrd
-	modprobe g_ether ${g_network} || usb0_fail
+	modprobe g_ether ${g_network} || usb1_fail
 }
 
 g_serial_retry () {
